@@ -2,7 +2,7 @@
 
 class Grom extends Eloquent {
 	protected $table = 'groms';
-	protected $fillable = array('user_id', 'content', 'content_type');
+	protected $fillable = array('user_id', 'content', 'content_type', 'description');
 	protected $softDelete = true;
 
 	protected static $storage_path = 'groms/images';
@@ -19,6 +19,7 @@ class Grom extends Eloquent {
 		$image = new self();
 		$image->user_id = isset($options['user_id'])?$options['user_id'] : 0;
 		$image->content = $name;
+		$image->description = isset($options['description'])?$options['description'] : '';
 		$image->content_type = isset($options['content_type'])? $options['content_type'] : 0;
 		$image->save();
 

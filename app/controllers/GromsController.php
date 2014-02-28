@@ -20,9 +20,30 @@ class GromsController extends \BaseController {
 		// from
 		// to
 		// groms
-		return Response::json($this->grom->paginate(15))
+		$results = array('groms' => $this->grom->orderBy('id', 'desc')->paginate(15)->toArray());
+		return Response::json($results)
 			->setCallback(Input::get('callback'));
 	}
+
+	/**
+	 * Display a listing of the resource.
+	 *
+	 * @return Response
+	 */
+	public function user(User $user)
+	{
+		// total
+		// per_page
+		// current_page
+		// last_page
+		// from
+		// to
+		// groms
+		$results = array('user' => $user->toArray(), 'groms' => $this->grom->orderBy('id', 'desc')->paginate(15)->toArray());
+		return Response::json($results)
+			->setCallback(Input::get('callback'));
+	}
+
 
 	/**
 	 * Show the form for creating a new resource.
@@ -41,11 +62,13 @@ class GromsController extends \BaseController {
 	 */
 	public function store()
 	{
-		if(($user_id = Input::get('user_id', false)) && Input::hasFile('content')) {
+		if(Input::hasFile('content')) {
 			$file = Input::file('content');
+			$description = Input::get('description', '');
 			$grom = $this->grom->moveAndSave($file, array(
 				'content_type' => 'image',
-				'user_id'      => $user_id,
+				'user_id'      => Auth::user()->id,
+				'description'  => $description
 				));
 			return $grom->toJson();
 		}

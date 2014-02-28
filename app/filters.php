@@ -22,6 +22,37 @@ App::after(function($request, $response)
 	//
 });
 
+
+
+Route::filter('allow-cors', function($route, $request, $response)
+{
+	$response->headers->set('Access-Control-Allow-Origin', '*');
+	return $response;
+});
+
+Route::filter('allow-options', function($route, $request) {
+	if ($request->getMethod() == "OPTIONS") {
+		$headers = array(
+			'Access-Control-Allow-Origin' =>' *',
+			'Access-Control-Allow-Methods'=>' POST, GET, OPTIONS, PUT, DELETE',
+			'Access-Control-Allow-Headers'=>'X-Requested-With, content-type'
+			);
+		return Response::make('', 200, $headers);
+	}
+});
+
+Route::filter('api-auth', function()
+{
+	$user = User::where('api_key', Input::get('api_key'))->first();
+	if (is_a($user, 'User')) {
+		Auth::login($user);
+	} else {
+		$message = new Illuminate\Support\MessageBag();
+		$message->add('error', 'Invalid key');
+		return $message->toJson();
+	}
+});
+
 /*
 |--------------------------------------------------------------------------
 | Authentication Filters
@@ -35,7 +66,9 @@ App::after(function($request, $response)
 
 Route::filter('auth', function()
 {
-	if (Auth::guest()) return Redirect::guest('login');
+	if (Auth::guest()) {
+		return Redirect::guest('login');
+	}
 });
 
 

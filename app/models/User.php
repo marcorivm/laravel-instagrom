@@ -12,12 +12,15 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
 	 */
 	protected $table = 'users';
 
+	protected $fillable = array('email', 'username', 'password');
+	protected $softDelete = true;
+
 	/**
 	 * The attributes excluded from the model's JSON form.
 	 *
 	 * @var array
 	 */
-	protected $hidden = array('password');
+	protected $hidden = array('password', 'api_key');
 
 	/**
 	 * Get the unique identifier for the user.
@@ -47,6 +50,15 @@ class User extends Eloquent implements UserInterface, RemindableInterface {
 	public function getReminderEmail()
 	{
 		return $this->email;
+	}
+
+	public function getApiKey()
+	{
+		if(! isset($this->api_key) || !strlen($this->api_key) > 0) {
+			$this->api_key = Hash::make($this->email . $this->username . substr($this->password, -10, 8));
+			$this->save();
+		}
+		return $this->api_key;
 	}
 
 }
